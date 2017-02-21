@@ -93,7 +93,7 @@ resource "<%= domain_type %>" "<%= name %>" {
 
     provisioner "remote-exec" {
         inline = [
-            "[ -d /root/.ssh ] || mkdir -p /root/.ssh",
+            "mkdir -p /root/.ssh",
         ]
     }
 

@@ -10,7 +10,7 @@ E2E=
 INFRA="cloud"
 DOCKER_REG_MIRROR=
 CONTAINER_START_TIMEOUT=300
-SALT_ROOT=/srv
+SALT_ROOT=/tmp/deploy
 SALT_ORCH_FLAGS=
 CONFIG_OUT_DIR=/root
 
@@ -31,8 +31,9 @@ K8S_MANIFESTS=/etc/kubernetes/manifests
 DASHBOARD_RPMS="kubernetes-node bind-utils etcd"
 DASHBOARD_SERVICES="docker kubelet etcd"
 
-# global args for running zypper
+# global args for running zypper and ssh/scp
 ZYPPER_GLOBAL_ARGS="-n --no-gpg-checks --quiet --no-color"
+SSH_GLOBAL_ARGS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 ########################################################################
 
@@ -43,6 +44,9 @@ case $NAME in
     CONTAINERS_REPO="http://download.opensuse.org/repositories/Virtualization:/containers/$(echo -n $PRETTY_NAME | tr " " "_")"
     ;;
 esac
+
+# TODO: maybe we need this repo:
+# CONTAINERS_REPO="http://download.opensuse.org/repositories/Virtualization:/containers/SLE_12_SP1/"
 
 while [ $# -gt 0 ] ; do
   case $1 in
@@ -141,7 +145,7 @@ if [ -z "$FINISH" ] ; then
 
     # TODO: this would have to be removed...
     mkdir -p "$K8S_MANIFESTS"
-    echo "KUBELET_ARGS=\"--v=2 --config=$K8S_MANIFESTS\"" > /etc/kubernetes/kubelet
+    echo "KUBELET_ARGS=\"--config=$K8S_MANIFESTS\"" > /etc/kubernetes/kubelet
 
     sed -i 's@#\?ETCD_LISTEN_PEER_URLS.*@ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380@' /etc/sysconfig/etcd
     sed -i 's@#\?ETCD_LISTEN_CLIENT_URLS.*@ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379@' /etc/sysconfig/etcd
@@ -210,7 +214,7 @@ users:
 EOF
 
     log "Creating admin.tar with config files and certificates"
-    scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null master:/etc/pki/minion.{crt,key} "$CONFIG_OUT_DIR"
+    scp $SSH_GLOBAL_ARGS $API_SERVER_IP:/etc/pki/minion.{crt,key} "$CONFIG_OUT_DIR"
     [ $? -eq 0 ] || abort "could not copy file from master"
 
     mv -f "$CONFIG_OUT_DIR/minion.crt" "$CONFIG_OUT_DIR/admin.crt"
