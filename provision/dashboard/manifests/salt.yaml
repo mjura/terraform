@@ -51,10 +51,10 @@ spec:
         path: /tmp/salt/config/master.d
     - name: salt-master
       hostPath:
-        path: /tmp/deploy/salt
+        path: /tmp/salt/sls
     - name: salt-pillar
       hostPath:
-        path: /tmp/deploy/pillar
+        path: /tmp/salt/pillar
     - name: salt-sock-dir
       hostPath:
         path: /var/run/salt/master
@@ -72,7 +72,7 @@ spec:
         path: /tmp/salt/config/minion.d-ca
     - name: salt-minion-ca-signing-policies
       hostPath:
-        path: /tmp/deploy/salt/ca/signing_policies.conf
+        path: /tmp/salt/sls/ca/signing_policies.conf
     - name: salt-minion-ca-grains
       hostPath:
         path: /tmp/salt/grains/ca

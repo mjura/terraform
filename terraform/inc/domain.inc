@@ -119,19 +119,25 @@ resource "<%= domain_type %>" "<%= name %>" {
             destination = "/tmp"
         }
 
+        provisioner "remote-exec" {
+            inline = [
+                "mkdir -p <%= salt_root %>/salt",
+            ]
+        }
+
         provisioner "file" {
             source      = "<%= salt_dir %>/salt"
-            destination = "/srv"
+            destination = "<%= salt_root %>/salt/sls"
         }
 
         provisioner "file" {
             source      = "<%= salt_dir %>/pillar"
-            destination = "/srv"
+            destination = "<%= salt_root %>/salt/pillar"
         }
 
         provisioner "remote-exec" {
             inline = [
-                "[ -d /etc/kubernetes/manifests ] || mkdir -p /etc/kubernetes/manifests",
+                "mkdir -p /etc/kubernetes/manifests",
             ]
         }
 
@@ -145,7 +151,7 @@ resource "<%= domain_type %>" "<%= name %>" {
                 <%# depending on some variables, we set some flags in the Salt master %>
                 <%# that will be translated to data in the Salt pillar... %>
 
-                <% prov_args  = "--dashboard #{dashboard_ref}" %>
+                <% prov_args  = "--dashboard #{dashboard_ref} --root #{salt_root}" %>
                 <% if exists? "infra" %>
                     <% prov_args  = "--infra #{infra}" %>
                 <% end %>
@@ -168,18 +174,19 @@ resource "<%= domain_type %>" "<%= name %>" {
 
         provisioner "file" {
             source      = "<%= tf_dir %>/provision/minion/salt"
-            destination = "/tmp"
+            destination = "<%= salt_root %>"
         }
 
         <% if !enabled?("skip_role_assignments") && !enabled?("skip_dashboard") %>
             provisioner "file" {
                 source      = "<%= tf_dir %>/provision/minion/salt/all-grains/<%= hostname %>"
-                destination = "/tmp/salt/grains"
+                destination = "<%= salt_root %>/salt/grains"
             }
         <% end %>
 
         provisioner "remote-exec" {
             inline = [
+                <% prov_args  = "--root #{salt_root} " %>
                 <% prov_args  = "--dashboard-host #{dashboard} " %>
                 <% prov_args += "--skip-role-assignments " if enabled?("skip_role_assignments") || enabled?("skip_dashboard") %>
                 "bash /tmp/provision-salt-minion.sh <%= prov_args %>",

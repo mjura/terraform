@@ -11,6 +11,7 @@
 <% set("cluster_prefix", "k8s")            if !exists? "cluster_prefix" %>
 <% set("cluster_domain_name", "k8s.local") if !exists? "cluster_domain_name" %>
 <% set("memory", "512")                    if !exists? "memory" %>
+<% set("salt_root", "/tmp")                if !exists? "salt_root" %>
 
 <% if provider == "libvirt" %>
     <% set("domain_type", "libvirt_domain") %>
