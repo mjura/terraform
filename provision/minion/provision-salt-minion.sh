@@ -73,9 +73,13 @@ mkdir -p /etc/salt/minion.d
 cp -v $SALT_ROOT_SUBDIR/config/minion.d/*  /etc/salt/minion.d
 [ -z $SKIP_ROLE_ASSIGNMENTS ] && cp -v $SALT_ROOT_SUBDIR/grains /etc/salt/
 
-log "Enabling & starting the Salt minion"
-systemctl enable salt-minion || abort "could not enable Salt minion"
-systemctl start salt-minion  || abort "could not start Salt minion"
+log "Enabling & (re)starting the Salt minion"
+systemctl enable kubelet   || abort "could not enable the kubelet"
+systemctl restart kubelet  || abort "could not restart the kubelet"
+
+log "Enabling & (re)starting the Salt minion"
+systemctl enable salt-minion   || abort "could not enable the Salt minion"
+systemctl restart salt-minion  || abort "could not restart the Salt minion"
 
 log "Salt minion config file:"
 log "------------------------------"
