@@ -93,7 +93,11 @@ if [ "$1" != "apply" ]; then
     exit $?
 fi
 
-notify-send "The infrastructure is up, running Salt!"
+if which notify-send >/dev/null; then
+    notify-send "The infrastructure is up, running Salt!"
+else
+    echo "The infrastructure is up, running Salt!"
+fi
 
 if [ $SKIP_ORCHESTRATION == "false" ] && [ $SKIP_DASHBOARD == "false" ]; then
     ssh -i ssh/id_docker \
