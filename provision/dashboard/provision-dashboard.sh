@@ -162,10 +162,6 @@ if [ -z "$FINISH" ] ; then
     log "Installing kubernetes-node"
     zypper $ZYPPER_GLOBAL_ARGS in -y $DASHBOARD_RPMS || abort "could not install packages"
 
-    # TODO: this would have to be removed...
-    mkdir -p "$K8S_MANIFESTS"
-    echo "KUBELET_ARGS=\"--config=$K8S_MANIFESTS\"" > /etc/kubernetes/kubelet
-
     log "Fixing etcd config"
     sed -i 's@#\?ETCD_LISTEN_PEER_URLS.*@ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380@' /etc/sysconfig/etcd
     sed -i 's@#\?ETCD_LISTEN_CLIENT_URLS.*@ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379@' /etc/sysconfig/etcd
