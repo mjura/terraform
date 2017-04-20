@@ -124,7 +124,10 @@ resource "<%= domain_type %>" "<%= name %>" {
             source      = "<%= tf_dir %>/provision/dashboard/salt"
             destination = "/tmp"
         }
-
+        provisioner "file" {
+            source      = "<%= tf_dir %>/provision/dashboard/manifests"
+            destination = "/tmp"
+        }
         provisioner "remote-exec" {
             inline = [
                 "mkdir -p <%= salt_root %>/salt",

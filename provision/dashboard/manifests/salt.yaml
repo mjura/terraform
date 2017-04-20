@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: salt
+  labels:
+    name: salt
+spec:
+  hostNetwork: true
+  containers:
+  - name: salt-master
+    image: opensuse/salt-master:latest
+    volumeMounts:
+    - mountPath: /etc/salt/pki
+      name: salt-master-pki
+    - mountPath: /etc/salt/master.d
+      name: salt-master-config
+    - mountPath: /srv/salt
+      name: salt-master
+    - mountPath: /srv/pillar
+      name: salt-pillar
+    - mountPath: /var/run/salt/master
+      name: salt-sock-dir
+  - name: salt-api
+    image: opensuse/salt-api:latest
+    volumeMounts:
+    - mountPath: /etc/salt/master.d
+      name: salt-master-config
+    - mountPath: /var/run/salt/master
+      name: salt-sock-dir
+  - name: salt-minion-ca
+    image: opensuse/salt-minion:latest
+    volumeMounts:
+    - mountPath: /etc/salt/minion_id
+      name: salt-minion-ca-id
+    - mountPath: /etc/pki
+      name: salt-pki
+    - mountPath: /etc/salt/pki
+      name: salt-minion-ca-pki
+    - mountPath: /etc/salt/minion.d
+      name: salt-minion-ca-config
+    - mountPath: /etc/salt/minion.d/signing_policies.conf
+      name: salt-minion-ca-signing-policies
+    - mountPath: /etc/salt/grains
+      name: salt-minion-ca-grains
+  volumes:
+    - name: salt-master-pki
+      hostPath:
+        path: /tmp/salt/master-pki
+    - name: salt-master-config
+      hostPath:
+        path: /tmp/salt/config/master.d
+    - name: salt-master
+      hostPath:
+        path: /tmp/salt/sls
+    - name: salt-pillar
+      hostPath:
+        path: /tmp/salt/pillar
+    - name: salt-sock-dir
+      hostPath:
+        path: /var/run/salt/master
+    - name: salt-minion-ca-id
+      hostPath:
+        path: /tmp/salt/minion-ca-id
+    - name: salt-pki
+      hostPath:
+        path: /etc/pki
+    - name: salt-minion-ca-pki
+      hostPath:
+        path: /tmp/salt/minion-ca-pki
+    - name: salt-minion-ca-config
+      hostPath:
+        path: /tmp/salt/config/minion.d-ca
+    - name: salt-minion-ca-signing-policies
+      hostPath:
+        path: /tmp/salt/sls/ca/signing_policies.conf
+    - name: salt-minion-ca-grains
+      hostPath:
+        path: /tmp/salt/grains/ca

@@ -27,7 +27,7 @@ SALT_MASTER_PORT=4505
 SALT_API_PORT=8000
 
 # kubernetes manifests locations
-K8S_MANIFESTS_IN="/usr/share/caasp-container-manifests"
+K8S_MANIFESTS_IN="/tmp/manifests"
 K8S_MANIFESTS_OUT="/etc/kubernetes/manifests"
 
 # rpms and services neccessary in the dashboard
@@ -234,7 +234,7 @@ if [ -z "$FINISH" ] ; then
     exec_in_container "k8s_velum-dashboard" rake db:setup
 
     log "Removing all Salt keys in the master"
-    exec_in_container "k8s_salt-master" salt-key --delete-all
+    exec_in_container "k8s_salt-master" salt-key -y --delete-all
 
     log "Setting some Pillars..."
     [ -n "$INFRA"             ] && add_pillar infrastructure "$INFRA"
