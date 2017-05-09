@@ -157,6 +157,17 @@ wait_for_port() {
   done
 }
 
+wait_for_socket() {
+  local socket=$1
+  local count=0
+  until [ -S $socket ] ; do
+    log "(waiting for socket $socket to be created...)"
+    sleep 5
+    [ "$count" -gt "$CONTAINER_START_TIMEOUT" ] && abort "timeout waiting for socket $socket"
+    count=$((count+5))
+  done
+}
+
 get_ip_for() {
   getent hosts "$1" | cut -f1 -d" "
 }
@@ -220,6 +231,7 @@ if [ -z "$FINISH" ] ; then
 
     # Wait for containers to be ready
     wait_for_container "k8s_velum-mariadb"         "mariadb database"
+    wait_for_socket "/var/run/mysql/mysql.sock"
     wait_for_container "k8s_salt-master"           "salt master"
     wait_for_port $SALT_MASTER_PORT
     wait_for_container "k8s_salt-minion-ca"        "certificate authority"
