@@ -225,6 +225,11 @@ if [ -z "$FINISH" ] ; then
     service_running "etcd" && systemctl stop etcd
     copy_etcd_cfg /etc/sysconfig/etcd /etc/sysconfig/etcd.new && mv /etc/sysconfig/etcd.new /etc/sysconfig/etcd
 
+    log "Generate certificates for salt-api and velum"
+    log "WARNING!!! This is part activate.sh script,"
+    log "which is not run by terraform deployment"
+    /usr/share/caasp-container-manifests/gen-certs.sh    
+
     log "Starting services..."
     for srv in $DASHBOARD_SERVICES ; do
       if service_exist "$srv" ; then
